@@ -1,0 +1,5 @@
+{
+    "mongoURIProd": "mongodb+srv://bhasu:bhaskar123@@baasumart-db.xki8i.mongodb.net/<dbname>?retryWrites=true&w=majority",
+    "adminEmail":"starizontech3@gmail.com",
+    "adminPassword":"bhaskar123@"
+}

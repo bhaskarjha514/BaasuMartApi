@@ -3,7 +3,8 @@ const router = express()
 const mongoose = require('mongoose')
 const Order = require('../models/Order')
 const Product = require('../models/Products')
-const User = require('../model/User')
+const User = require('../models/User')
+const confirmOrder = require('../utils/ConfirmOrder')
 
 
 // Handling Get Request to /orders
@@ -26,6 +27,8 @@ router.get('/addorder',async(req, res, next)=>{
     const user_exist = await User.findById(req.query.userId)
     
     if(is_exist && user_exist){
+        const userAcc = await User.findOne({'_id':req.query.userId})
+        const productName = is_exist.name
         const order = new Order({
             _id: mongoose.Types.ObjectId(),
             user:req.query.userId,
@@ -36,7 +39,16 @@ router.get('/addorder',async(req, res, next)=>{
            
         })
         await order.save().then(result => {
-            return res.status(200).json({success:true, message: "Order Placed", msg: result})
+            const output = `
+            <p>Welcome To BaasuMart , You placed a order for</p>
+            <p>This Product ${productName}</p>
+        `;
+            msg = confirmOrder.mailer(userAcc.email,productName,output)
+            if(msg){
+                return res.status(200).json({success:true, message: "Order Placed", msg: result,detailMsg:"couldn't sent email"})
+            }
+            return res.status(200).json({success:true, message: "Order Placed", msg: result,detailMsg:'sent email too'})
+           
         }).catch(err => {
             return res.status(400).json({success:false, message: "Couldn't Placed Order" ,msg: err})
         })
@@ -47,7 +59,35 @@ router.get('/addorder',async(req, res, next)=>{
         })
     }
 })
+router.get('/delivered', async(req, res, next)=>{
+    const orderId = req.query.orderId;
+    
+    const is_exist = await Order.findById({'_id':orderId})
+    if(is_exist){
+        
+        const product = await Product.findById({'_id':is_exist.product})
+        const userAcc = await User.findById({'_id':is_exist.user})
 
+        mongoose.set('useFindAndModify', false);
+        await Order.findOneAndUpdate({'_id':orderId},{'delivered':true})
+        .then(result=>{
+            const output = `
+            <p>Welcome To BaasuMart , You placed a order for</p>
+            <p>This Product ${product.name} which have been Successfully delivered</p>
+        `;
+       msg = confirmOrder.mailer(userAcc.email,product.name,output)
+    //    if(msg) return res.status(200).json({success:true, message: "Order delivered", msg: "couldn't send mail"})
+       return res.status(200).json({success:true, message: "Order delivered", msg: "sent mail too"})     
+        })
+        .catch(err=>{
+            console.log("err"+err)
+            return res.status(500).json({success:false, message: "Something went wrong", msg: err})
+        })
+    }else{
+        return res.status(400).json({success:false, message: "Order not found"})
+    }
+   
+})
 router.get('/:orderId',async(req, res, next)=>{
     const id = req.params.orderId;
     Order.findById(id)
@@ -73,5 +113,4 @@ router.delete('/:orderId',async(req, res, next)=>{
         return res.status(500).json({success:false, message: "something went wrong", msg: err})
     })
 })
-
 module.exports = router

@@ -65,7 +65,7 @@ router.get('/login', async (req, res, next)=>{
                 if(!isMatch){
                     return res.status(400).json({success:false, message:'wrong password'})
                 }else{
-                    return res.status(201).json({success:true, message:'successfully login'})
+                    return res.status(201).json({success:true, message:'successfully login',msg:user})
                 }
             }
         }

@@ -3,12 +3,13 @@ const router = express()
 const mongoose = require('mongoose')
 const Order = require('../models/Order')
 const Product = require('../models/Products')
+const User = require('../model/User')
 
 
 // Handling Get Request to /orders
 router.get('/',async(req, res, next)=>{
     Order.find()
-    .select("product quantity _id")
+    .select("user product quantity _id")
     .populate('product','name price')
     .exec()
     .then(doc=>{
@@ -22,11 +23,17 @@ router.get('/',async(req, res, next)=>{
 
 router.get('/addorder',async(req, res, next)=>{
     const is_exist = await Product.findById(req.query.productId)
-    if(is_exist){
+    const user_exist = await User.findById(req.query.userId)
+    
+    if(is_exist && user_exist){
         const order = new Order({
             _id: mongoose.Types.ObjectId(),
+            user:req.query.userId,
             product:req.query.productId,
-            quantity:req.query.price
+            quantity:req.query.price,
+            date: new Date(),
+            delivered:false  
+           
         })
         await order.save().then(result => {
             return res.status(200).json({success:true, message: "Order Placed", msg: result})
@@ -44,7 +51,7 @@ router.get('/addorder',async(req, res, next)=>{
 router.get('/:orderId',async(req, res, next)=>{
     const id = req.params.orderId;
     Order.findById(id)
-    .populate('product')
+    .populate('product','user')
     .exec()
     .then(doc=>{
         if(doc) return res.status(200).json({success:true, message: doc, msg: "Got Order Detail"})

@@ -15,7 +15,7 @@ router.get('/register',async (req, res, next)=>{
         if(user_exist){
             let checkAuth = await Auth.findOne({'email':email})
             if(checkAuth) return res.status(201).json({success:true, message:'Verify your Account'})
-            return res.status(201).json({success:true, message:'Email Already used! Enter OTP'})
+            return res.status(201).json({success:true, message:'Email Already used!'})
         }
         const salt = await bcryptjs.genSalt(10)
         const password = await bcryptjs.hash(fpassword, salt)

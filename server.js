@@ -20,3 +20,8 @@ app.use('/api/baasumart/products', productRoutes)
 app.use('/api/baasumart/orders',orderRoutes)
 
 app.listen(PORT , () => console.log(`Server running at ${PORT}`))
+
+//Hosted Api Uri = https://baasumart.herokuapp.com/
+//Heroku bhaskarjha514@gmail.com
+//MongDB- bassumarts@gmail.com
+//NodeEmailer - starizontech3@gmail.com

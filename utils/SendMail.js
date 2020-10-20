@@ -14,6 +14,7 @@ const mailer = (email, code) => {
     var transporter = nodemailer.createTransport({
         service : 'gmail',
         auth : {
+            type: 'OAuth2',
             user: adminEmail, // Your Email
             pass: adminPassword // your password
         },

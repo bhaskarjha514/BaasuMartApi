@@ -82,7 +82,6 @@ router.get('/verify/', async (req, res) => {
     const code = req.query.code
     const email = req.query.email
 
-    
     const acc = await Auth.findOne({'email':email})
    
     if(!(acc.code == code)){

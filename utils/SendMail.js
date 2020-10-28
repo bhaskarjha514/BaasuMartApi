@@ -12,14 +12,17 @@ const mailer = (email, code) => {
     `;
 
     var transporter = nodemailer.createTransport({
+
         service : 'gmail',
+        secure:true,
         auth : {
             
             user: adminEmail, // Your Email
             pass: adminPassword // your password
         },
         tls: {
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            
         }
     })
 
